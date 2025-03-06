@@ -1,3 +1,46 @@
+"use client";
+
+import React, { useState } from "react";
+import { Icon } from "@iconify/react";
+
+interface FoodCardProps {
+  item: {
+    id: number;
+    name: string;
+    image: string;
+  };
+  onDelete: () => void;
+}
+
+const FoodCard: React.FC<FoodCardProps> = ({ item, onDelete }) => {
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleDelete = () => {
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete();
+    setShowConfirm(false);
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
+  };
+
+  return (
+    <div className="border rounded-lg shadow-md overflow-hidden p-3">
+      <img
+        src={item.image}
+        alt={item.name}
+        className="w-full h-40 object-cover"
+      />
+      <div className="p-4 text-center">
+        <h3 className="text-lg font-semibold">{item.name}</h3>
+        <div className="flex justify-between gap-x-5 mt-2 px-3">
+          <button className="flex items-center justify-center gap-1 px-4 py-2 border border-orange-500 text-orange-500 rounded-md shadow-sm hover:bg-orange-500 hover:text-white active:bg-orange-600 transition w-full max-w-[calc(50%-10px)]">
+            <Icon icon="tabler:pencil" width="16" /> แก้ไข
+          </button>
           <button
             onClick={handleDelete}
             className="flex items-center justify-center gap-1 px-4 py-2 border border-gray-500 text-gray-500 rounded-md shadow-sm hover:bg-gray-500 hover:text-white active:bg-gray-600 transition w-full max-w-[calc(50%-10px)]"
