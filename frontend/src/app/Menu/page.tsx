@@ -16,7 +16,7 @@ const initialMenuItems: MenuItem[] = [
     id: 1,
     name: "ไก่ทอด",
     image:
-      "https://s359.kapook.com/pagebuilder/3e1a9460-ddf0-47de-9c99-f2136aacd828.jpg",
+      "https://www.maggi.co.th/sites/default/files/styles/home_stage_1500_700/public/srh_recipes/22083cfb8eb29281fa1992e9aa589423.jpeg?h=b2589b4a&itok=Xz_r8U6a",
   },
   {
     id: 2,
@@ -28,19 +28,17 @@ const initialMenuItems: MenuItem[] = [
     id: 3,
     name: "ต้มยำ",
     image:
-      "https://s359.kapook.com/pagebuilder/3e1a9460-ddf0-47de-9c99-f2136aacd828.jpg",
+      "https://static.thairath.co.th/media/4DQpjUtzLUwmJZZSGoljLW5KeafFttEBzPkbbl7GHOdf.jpg",
   },
   {
     id: 4,
     name: "ปูผัดผงกะหรี่",
-    image:
-      "https://s359.kapook.com/pagebuilder/3e1a9460-ddf0-47de-9c99-f2136aacd828.jpg",
+    image: "https://food.mthai.com/app/uploads/2017/01/iStock-611778670.jpg",
   },
   {
     id: 5,
     name: "สลัดผักไข่",
-    image:
-      "https://s359.kapook.com/pagebuilder/3e1a9460-ddf0-47de-9c99-f2136aacd828.jpg",
+    image: "https://howtocookhub.com/wp-content/uploads/2024/01/2-1.jpg",
   },
 ];
 
