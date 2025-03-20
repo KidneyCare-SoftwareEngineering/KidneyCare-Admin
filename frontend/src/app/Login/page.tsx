@@ -30,7 +30,7 @@ const Login = () => {
 
         {/* Form */}
         <div className="w-1/2 pl-12">
-          <h2 className="text-orange-500 text-2xl font-bold mb-6">Welcome !</h2>
+          <h2 className="text-orange-500 text-2xl font-bold mb-6">Welcome!</h2>
           {error && <div className="text-red-500 mb-4">{error}</div>}
 
           <Textfield
