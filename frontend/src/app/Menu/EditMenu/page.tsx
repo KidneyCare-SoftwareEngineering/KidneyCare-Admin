@@ -49,9 +49,9 @@ export default function EditFoodMenu() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">แก้ไขเมนูอาหาร</h2>
-
       <div className="grid grid-cols-2 gap-6">
         <div>
+          <h3 className="text-lg font-semibold">ข้อมูลทั่วไป</h3>
           <TextField
             label="ชื่อเมนูอาหาร"
             value={foodName}
