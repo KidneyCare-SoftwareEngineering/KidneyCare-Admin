@@ -8,6 +8,7 @@ interface TextFieldProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type: string;
   className?: string;
+  style?: React.CSSProperties; //
 }
 
 const TextField: React.FC<TextFieldProps> = ({

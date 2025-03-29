@@ -135,7 +135,8 @@ export default function EditFoodMenu() {
                 setIngredients(newIngredients);
               }}
               type="text"
-              className="flex-1"
+              className="flex-1 w-full "
+              style={{ width: "100%" }}
             />
             <TextField
               label="จำนวน"

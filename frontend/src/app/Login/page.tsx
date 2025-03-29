@@ -2,12 +2,16 @@
 
 import React, { useState } from "react";
 import Textfield from "../../../Components/Textfield";
+
+const API_BASE_URL = "http://127.0.0.1:7878/admin_login";
+
 const Login = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     if (!username || !password) {
@@ -15,9 +19,41 @@ const Login = () => {
       return;
     }
 
-    console.log("ข้อมูลที่กรอก:", { username, password });
-
     setError("");
+    setIsLoading(true);
+
+    const loginData = {
+      username,
+      password,
+    };
+
+    try {
+      const response = await fetch(API_BASE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Invalid username or password"); // Throw error if status is not ok
+      }
+
+      const data = await response.json();
+
+      console.log("Login successful:", data);
+
+      setIsLoading(false);
+
+      // Clear
+      setUsername("");
+      setPassword("");
+    } catch (err: any) {
+      console.error("Error logging in:", err);
+      setError(err.message || "An error occurred. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -51,8 +87,9 @@ const Login = () => {
             type="button"
             onClick={handleSubmit}
             className="w-full bg-orange-500 text-white py-3 rounded-md font-semibold text-lg hover:bg-orange-600 transition"
+            disabled={isLoading}
           >
-            เข้าสู่ระบบ
+            {isLoading ? "Loading..." : "เข้าสู่ระบบ"}
           </button>
         </div>
       </div>
