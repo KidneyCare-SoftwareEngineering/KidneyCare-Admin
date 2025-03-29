@@ -37,7 +37,7 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Invalid username or password"); // Throw error if status is not ok
+        throw new Error("Invalid username or password");
       }
 
       const data = await response.json();
