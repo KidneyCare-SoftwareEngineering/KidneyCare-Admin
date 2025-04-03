@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Textfield from "../../../Components/Textfield";
 
 const API_BASE_URL = "http://127.0.0.1:7878/admin_login";
@@ -10,6 +11,14 @@ const Login = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/admin");
+    }
+  }, []);
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -22,10 +31,7 @@ const Login = () => {
     setError("");
     setIsLoading(true);
 
-    const loginData = {
-      username,
-      password,
-    };
+    const loginData = { username, password };
 
     try {
       const response = await fetch(API_BASE_URL, {
@@ -41,14 +47,13 @@ const Login = () => {
       }
 
       const data = await response.json();
-
-      console.log("Login successful:", data);
+      localStorage.setItem("token", data.token);
 
       setIsLoading(false);
-
-      // Clear
       setUsername("");
       setPassword("");
+
+      router.push("/admin");
     } catch (err: any) {
       console.error("Error logging in:", err);
       setError(err.message || "An error occurred. Please try again.");
@@ -89,7 +94,7 @@ const Login = () => {
             className="w-full bg-orange-500 text-white py-3 rounded-md font-semibold text-lg hover:bg-orange-600 transition"
             disabled={isLoading}
           >
-            {isLoading ? "Loading..." : "เข้าสู่ระบบ"}
+            {isLoading ? "กรุณารอสักครู่..." : "เข้าสู่ระบบ"}
           </button>
         </div>
       </div>
