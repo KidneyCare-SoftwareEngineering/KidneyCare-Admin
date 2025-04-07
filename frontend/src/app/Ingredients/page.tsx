@@ -11,8 +11,9 @@ interface MenuItem {
   image: string;
 }
 
-const Menu: React.FC = () => {
+const Ingredients: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [sortBy, setSortBy] = useState<string>("");
 
   useEffect(() => {
     fetch("http://127.0.0.1:7878/ingredients")
@@ -26,21 +27,34 @@ const Menu: React.FC = () => {
       });
   }, []);
 
-  const handleDelete = (id: number) => {
-    setMenuItems(menuItems.filter((item) => item.id !== id));
+  const sortMenuItems = (items: MenuItem[]) => {
+    if (sortBy === "ผัก") {
+      return items.filter((item) => item.name.includes("ผัก"));
+    } else if (sortBy === "เนื้อสัตว์") {
+      return items.filter((item) => item.name.includes("เนื้อสัตว์"));
+    }
+    return items;
   };
+
+  const sortedMenuItems = sortMenuItems(menuItems);
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="p-6 w-full">
-        <Header />
+        <Header
+          title="จัดการวัตถุดิบ"
+          sortOptions={["ผัก", "เนื้อสัตว์"]}
+          onSortChange={(option: string) => setSortBy(option)}
+        />
         <div className="grid grid-cols-4 gap-4">
-          {menuItems.map((item) => (
+          {sortedMenuItems.map((item) => (
             <FoodCard
               key={item.id}
               item={item}
-              onDelete={() => handleDelete(item.id)}
+              onDelete={() =>
+                setMenuItems(menuItems.filter((i) => i.id !== item.id))
+              }
             />
           ))}
         </div>
@@ -49,4 +63,4 @@ const Menu: React.FC = () => {
   );
 };
 
-export default Menu;
+export default Ingredients;

@@ -1,11 +1,17 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 
 type MenuItem = "menu1" | "menu2" | "menu3";
 
 export default function Sidebar() {
   const [selectedMenu, setSelectedMenu] = useState<MenuItem>("menu1");
+  const router = useRouter();
+
+  const handleLogout = () => {
+    router.push("/Login");
+  };
 
   return (
     <div className="flex flex-col bg-white w-60 h-screen drop-shadow-lg p-4">
@@ -16,12 +22,15 @@ export default function Sidebar() {
 
       <div className="flex flex-col gap-2">
         <div
-          className={`flex flex-row items-center gap-2 p-2  ${
+          className={`flex flex-row items-center gap-2 p-2 ${
             selectedMenu === "menu1"
               ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
               : "text-gray-400 font-normal"
           }`}
-          onClick={() => setSelectedMenu("menu1")}
+          onClick={() => {
+            setSelectedMenu("menu1");
+            router.push("/Menu");
+          }}
         >
           <Icon icon="material-symbols:food-bank" height="20" />
           <span>จัดการเมนูอาหาร</span>
@@ -33,26 +42,35 @@ export default function Sidebar() {
               ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
               : "text-gray-400 font-normal"
           }`}
-          onClick={() => setSelectedMenu("menu2")}
+          onClick={() => {
+            setSelectedMenu("menu2");
+            router.push("/Ingredients"); //
+          }}
         >
           <Icon icon="mdi:fish-food" height="20" />
           <span>จัดการวัตถุดิบ</span>
         </div>
 
         <div
-          className={`flex flex-row items-center gap-2 p-2  ${
+          className={`flex flex-row items-center gap-2 p-2 ${
             selectedMenu === "menu3"
               ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
               : "text-gray-400 font-normal"
           }`}
-          onClick={() => setSelectedMenu("menu3")}
+          onClick={() => {
+            setSelectedMenu("menu3");
+            router.push("/Message");
+          }}
         >
           <Icon icon="material-symbols:chat-outline" height="20" />
           <span>จัดการข้อความ</span>
         </div>
       </div>
 
-      <div className="mt-auto flex flex-row items-center gap-2 p-2 text-gray-400 cursor-pointer">
+      <div
+        className="mt-auto flex flex-row items-center gap-2 p-2 text-gray-400 cursor-pointer hover:text-orange-500"
+        onClick={handleLogout}
+      >
         <Icon icon="material-symbols:logout" height="20" />
         <span>ออกจากระบบ</span>
       </div>

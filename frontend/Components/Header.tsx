@@ -2,18 +2,28 @@
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  title: string;
+  sortOptions: string[]; // เพิ่ม props สำหรับตัวเลือกการจัดเรียง
+  onSortChange: (option: string) => void; // เพิ่มฟังก์ชันสำหรับการเปลี่ยนแปลงการจัดเรียง
+}
+
+const Header: React.FC<HeaderProps> = ({
+  title,
+  sortOptions,
+  onSortChange,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-bold">จัดการเมนูอาหาร</h2>
+      <h2 className="text-xl font-bold">{title}</h2>
       <div className="flex gap-2">
         <div className="relative">
           <input
             type="text"
             className="border rounded p-2 pl-8 w-48"
-            placeholder="ค้นหาเมนู..."
+            placeholder={`ค้นหา${title.replace("จัดการ", "").trim()}...`}
           />
           <Icon
             icon="tabler:search"
@@ -32,24 +42,25 @@ const Header: React.FC = () => {
           </button>
           {isOpen && (
             <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md">
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
-              >
-                ผัด
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                onClick={() => setIsOpen(false)}
-              >
-                ทอด
-              </button>
+              {sortOptions.map((option, index) => (
+                <button
+                  key={index}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  onClick={() => {
+                    onSortChange(option); // เรียกใช้ฟังก์ชันที่ส่งมาเพื่อเปลี่ยนการจัดเรียง
+                    setIsOpen(false);
+                  }}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
           )}
         </div>
 
         <button className="flex items-center gap-1 bg-orange-500 text-white rounded px-4 py-2 shadow hover:bg-orange-600 active:bg-orange-700 transition">
-          <Icon icon="tabler:plus" width="16" /> เพิ่มข้อมูลเมนูอาหาร
+          <Icon icon="tabler:plus" width="16" /> เพิ่มข้อมูล
+          {title.replace("จัดการ", "").trim()}
         </button>
       </div>
     </div>
