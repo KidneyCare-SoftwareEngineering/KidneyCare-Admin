@@ -55,6 +55,7 @@ const Menu: React.FC = () => {
           title="จัดการเมนูอาหาร"
           sortOptions={["ผัด", "ทอด"]}
           onSortChange={handleSortChange}
+          addPath="/Menu/AddMenu"
         />
         <div className="grid grid-cols-4 gap-4">
           {sortedMenuItems().map((item) => (

@@ -1,24 +1,29 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 
 interface HeaderProps {
   title: string;
-  sortOptions: string[]; // เพิ่ม props สำหรับตัวเลือกการจัดเรียง
-  onSortChange: (option: string) => void; // เพิ่มฟังก์ชันสำหรับการเปลี่ยนแปลงการจัดเรียง
+  sortOptions: string[];
+  onSortChange: (option: string) => void;
+  addPath: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
   title,
   sortOptions,
   onSortChange,
+  addPath,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="flex justify-between items-center mb-4">
       <h2 className="text-xl font-bold">{title}</h2>
       <div className="flex gap-2">
+        {/* ค้นหา */}
         <div className="relative">
           <input
             type="text"
@@ -32,6 +37,7 @@ const Header: React.FC<HeaderProps> = ({
           />
         </div>
 
+        {/* ตัวกรอง */}
         <div className="relative">
           <button
             className="flex items-center gap-1 border rounded px-4 py-2"
@@ -41,13 +47,13 @@ const Header: React.FC<HeaderProps> = ({
             <Icon icon="tabler:filter" width="16" /> จัดเรียงตาม
           </button>
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md">
+            <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md z-10">
               {sortOptions.map((option, index) => (
                 <button
                   key={index}
                   className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                   onClick={() => {
-                    onSortChange(option); // เรียกใช้ฟังก์ชันที่ส่งมาเพื่อเปลี่ยนการจัดเรียง
+                    onSortChange(option);
                     setIsOpen(false);
                   }}
                 >
@@ -58,9 +64,13 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <button className="flex items-center gap-1 bg-orange-500 text-white rounded px-4 py-2 shadow hover:bg-orange-600 active:bg-orange-700 transition">
-          <Icon icon="tabler:plus" width="16" /> เพิ่มข้อมูล
-          {title.replace("จัดการ", "").trim()}
+        {/* ปุ่มเพิ่มข้อมูล */}
+        <button
+          onClick={() => router.push(addPath)}
+          className="flex items-center gap-1 bg-orange-500 text-white rounded px-4 py-2 shadow hover:bg-orange-600 active:bg-orange-700 transition"
+        >
+          <Icon icon="tabler:plus" width="16" />
+          เพิ่มข้อมูล{title.replace("จัดการ", "").trim()}
         </button>
       </div>
     </div>
