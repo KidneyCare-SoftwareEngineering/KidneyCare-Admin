@@ -17,7 +17,7 @@ const Menu: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:7878/get_recipes")
+    fetch("https://backend-billowing-waterfall-4640.fly.dev/get_recipes")
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -29,19 +29,20 @@ const Menu: React.FC = () => {
   }, []);
 
   const handleDelete = (id: number) => {
-    setMenuItems(menuItems.filter((item) => item.id !== id));
+    setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
   const handleSortChange = (option: string) => {
     setSortBy(option);
   };
 
-  const sortedMenuItems = () => {
-    if (sortBy === "ผัด") {
-      return menuItems.filter((item) => item.ingredients.includes("ผัด"));
-    } else if (sortBy === "ทอด") {
-      return menuItems.filter((item) => item.ingredients.includes("ทอด"));
+  const sortedMenuItems = (): MenuItem[] => {
+    if (!Array.isArray(menuItems)) return [];
+
+    if (sortBy) {
+      return menuItems.filter((item) => item.ingredients.includes(sortBy));
     }
+
     return menuItems;
   };
 
@@ -52,7 +53,7 @@ const Menu: React.FC = () => {
       <div className="p-6 w-full flex-1">
         <Header
           title="จัดการเมนูอาหาร"
-          sortOptions={["ผัก", "เนื้อสัตว์"]}
+          sortOptions={["ผัด", "ทอด"]}
           onSortChange={handleSortChange}
         />
         <div className="grid grid-cols-4 gap-4">
