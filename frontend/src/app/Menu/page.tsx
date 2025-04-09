@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../../Components/Sidebar";
 import Header from "../../../Components/Header";
@@ -13,9 +12,11 @@ interface MenuItem {
 
 const Menu: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]); // สำหรับเก็บข้อมูลที่กรองแล้ว
   const [sortBy, setSortBy] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 20;
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     fetch("https://backend-billowing-waterfall-4640.fly.dev/get_recipes")
@@ -34,6 +35,7 @@ const Menu: React.FC = () => {
           })
         );
         setMenuItems(formattedData);
+        setFilteredItems(formattedData); // ตั้งค่าข้อมูลที่กรองแล้ว
       })
       .catch((error) => {
         console.error("Error fetching menu items:", error);
@@ -44,6 +46,16 @@ const Menu: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    const filtered = menuItems.filter((item) =>
+      item.name.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredItems(filtered);
+    setCurrentPage(1); // รีเซ็ตหน้าเมื่อค้นหา
+    scrollToTop();
+  };
+
   const handleDelete = (id: number) => {
     fetch(
       `https://backend-billowing-waterfall-4640.fly.dev/delete_recipe/${id}`,
@@ -51,6 +63,9 @@ const Menu: React.FC = () => {
     )
       .then(() => {
         setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+        setFilteredItems((prevItems) =>
+          prevItems.filter((item) => item.id !== id)
+        );
       })
       .catch((error) => {
         console.error("Error deleting menu item:", error);
@@ -73,6 +88,11 @@ const Menu: React.FC = () => {
             item.id === id ? { ...item, ...updatedItem } : item
           )
         );
+        setFilteredItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === id ? { ...item, ...updatedItem } : item
+          )
+        );
       })
       .catch((error) => {
         console.error("Error updating menu item:", error);
@@ -88,6 +108,7 @@ const Menu: React.FC = () => {
       .then((response) => response.json())
       .then((createdItem) => {
         setMenuItems((prevItems) => [...prevItems, createdItem]);
+        setFilteredItems((prevItems) => [...prevItems, createdItem]);
       })
       .catch((error) => {
         console.error("Error creating menu item:", error);
@@ -95,7 +116,7 @@ const Menu: React.FC = () => {
   };
 
   const handleSort = (sortOption: string) => {
-    const sortedItems = [...menuItems].sort((a, b) => {
+    const sortedItems = [...filteredItems].sort((a, b) => {
       if (sortOption === "ก-ฮ") {
         return a.name.localeCompare(b.name, "th");
       } else if (sortOption === "ฮ-ก") {
@@ -103,14 +124,14 @@ const Menu: React.FC = () => {
       }
       return 0;
     });
-    setMenuItems(sortedItems);
+    setFilteredItems(sortedItems);
     setCurrentPage(1);
     scrollToTop();
   };
 
   // Pagination logic
-  const totalPages = Math.ceil(menuItems.length / itemsPerPage);
-  const paginatedItems = menuItems.slice(
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = filteredItems.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -126,7 +147,11 @@ const Menu: React.FC = () => {
       // Show first, last, current, and neighbors with ellipsis
       if (currentPage > 2) buttons.push(1);
       if (currentPage > 3) buttons.push("...");
-      for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages, currentPage + 1); i++) {
+      for (
+        let i = Math.max(1, currentPage - 1);
+        i <= Math.min(totalPages, currentPage + 1);
+        i++
+      ) {
         buttons.push(i);
       }
       if (currentPage < totalPages - 2) buttons.push("...");
@@ -147,6 +172,7 @@ const Menu: React.FC = () => {
             handleSort(selectedOption);
           }}
           addPath="/Menu/AddMenu"
+          onSearch={handleSearch} // เพิ่มฟังก์ชัน onSearch
         />
 
         <div className="grid grid-cols-4 gap-4">
@@ -158,8 +184,10 @@ const Menu: React.FC = () => {
                 name: item.name,
                 image: item.image,
               }}
-              onDelete={() => console.log(`Delete item ${item.id}`)}
-              onUpdate={() => console.log(`Update item ${item.id}`)}
+              onDelete={() => handleDelete(item.id)} // ใช้ handleDelete
+              onUpdate={() =>
+                handleUpdate(item.id, { name: item.name, image: item.image })
+              } // ใช้ handleUpdate
             />
           ))}
         </div>
@@ -187,10 +215,11 @@ const Menu: React.FC = () => {
                   setCurrentPage(button);
                   scrollToTop();
                 }}
-                className={`px-3 py-1 rounded ${currentPage === button
-                  ? "bg-orange-500 text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-                  }`}
+                className={`px-3 py-1 rounded ${
+                  currentPage === button
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-200 hover:bg-gray-300"
+                }`}
               >
                 {button}
               </button>
