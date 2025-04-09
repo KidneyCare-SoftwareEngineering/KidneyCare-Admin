@@ -8,7 +8,7 @@ const API_BASE_URL =
   "https://backend-billowing-waterfall-4640.fly.dev/admin_login";
 
 const Login = () => {
-  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>(""); // ใช้ email แทน username
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -24,15 +24,15 @@ const Login = () => {
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    if (!username || !password) {
-      setError("กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน");
+    if (!email || !password) {
+      setError("กรุณากรอกอีเมลและรหัสผ่าน");
       return;
     }
 
     setError("");
     setIsLoading(true);
 
-    const loginData = { username, password };
+    const loginData = { email, password }; // ใช้ email แทน username
 
     try {
       const response = await fetch(API_BASE_URL, {
@@ -43,16 +43,19 @@ const Login = () => {
         body: JSON.stringify(loginData),
       });
 
-      if (!response.ok) {
-        throw new Error("Invalid username or password");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        // ตรวจสอบ success ว่าเป็น true หรือไม่
+        throw new Error(data?.message || "Invalid email or password");
       }
 
-      const data = await response.json();
+      // เมื่อเข้าสู่ระบบสำเร็จ
       localStorage.setItem("token", data.token);
 
       setIsLoading(false);
-      setUsername("");
-      setPassword("");
+      setEmail(""); // ล้างค่า email
+      setPassword(""); // ล้างค่า password
 
       router.push("/admin");
     } catch (err: any) {
@@ -76,10 +79,10 @@ const Login = () => {
           {error && <div className="text-red-500 mb-4">{error}</div>}
 
           <Textfield
-            label="ชื่อผู้ใช้งาน"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            type="text"
+            label="อีเมล"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
           />
 
           <Textfield

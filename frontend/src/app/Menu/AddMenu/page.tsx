@@ -12,6 +12,7 @@ export default function AddFoodMenu() {
     { name: "", amount: "", unit: "" },
   ]);
   const [foodName, setFoodName] = useState("");
+  const [foodType, setFoodType] = useState("ทั่วไป");
   const [nutrition, setNutrition] = useState({
     protein: "",
     vitamin: "",
@@ -63,6 +64,7 @@ export default function AddFoodMenu() {
     formData.append("calories_unit", "kcal");
     formData.append("food_category", "Main Dish");
     formData.append("dish_type", "Stir-Fry");
+    formData.append("food_type", foodType);
 
     formData.append("ingredients", JSON.stringify(ingredients));
     formData.append("nutrients", JSON.stringify(nutrition));
@@ -71,7 +73,6 @@ export default function AddFoodMenu() {
       formData.append("image", file);
     });
 
-    // Log formData contents to inspect before sending
     console.log("Form Data to be sent:");
     for (let pair of formData.entries()) {
       console.log(pair[0] + ": " + pair[1]);
@@ -113,6 +114,21 @@ export default function AddFoodMenu() {
               onChange={(e) => setFoodName(e.target.value)}
               type="text"
             />
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ประเภทอาหาร
+              </label>
+              <select
+                value={foodType}
+                onChange={(e) => setFoodType(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
+              >
+                <option value="ทั่วไป">ทั่วไป</option>
+                <option value="ฮาลาล">ฮาลาล</option>
+                <option value="มังสวิรัติ">มังสวิรัติ</option>
+                <option value="วีแกน">วีแกน</option>
+              </select>
+            </div>
             <div className="mt-4 flex gap-2">
               {images.map((image, index) => (
                 <div
