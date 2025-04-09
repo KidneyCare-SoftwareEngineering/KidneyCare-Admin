@@ -44,27 +44,27 @@ export default function Sidebar() {
           }`}
           onClick={() => {
             setSelectedMenu("menu2");
-            router.push("/Ingredients"); //
+            router.push("/Ingredients");
           }}
         >
           <Icon icon="mdi:fish-food" height="20" />
           <span>จัดการวัตถุดิบ</span>
         </div>
 
-        <div
-          className={`flex flex-row items-center gap-2 p-2 ${
+        <a
+          href="https://chat.line.biz/Ub4b7e0554e30f34b42401f875fdc8414"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`flex flex-row items-center gap-2 p-2 cursor-pointer ${
             selectedMenu === "menu3"
               ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
               : "text-gray-400 font-normal"
           }`}
-          onClick={() => {
-            setSelectedMenu("menu3");
-            router.push("/Message");
-          }}
+          onClick={() => setSelectedMenu("menu3")}
         >
           <Icon icon="material-symbols:chat-outline" height="20" />
           <span>จัดการข้อความ</span>
-        </div>
+        </a>
       </div>
 
       <div
