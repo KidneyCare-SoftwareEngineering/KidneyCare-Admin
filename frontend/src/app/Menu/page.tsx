@@ -9,24 +9,35 @@ interface MenuItem {
   id: number;
   name: string;
   image: string;
-  ingredients: string[];
 }
+
 
 const Menu: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [sortBy, setSortBy] = useState<string>("");
 
   useEffect(() => {
-    fetch("https://8bc0-125-24-15-48.ngrok-free.app/get_recipes")
-      .then((response) => response.json())
+    fetch("https://backend-billowing-waterfall-4640.fly.dev/get_recipes")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((data) => {
-        console.log(data);
-        setMenuItems(data);
+        const formattedData = data.recipes.map((recipe: any, index: number) => ({
+          id: index + 1,
+          name: recipe.recipe_name,
+          image: recipe.recipe_img_link[0]
+        }));
+        console.log(formattedData);
+        setMenuItems(formattedData);
       })
       .catch((error) => {
         console.error("Error fetching menu items:", error);
       });
   }, []);
+
 
   const handleDelete = (id: number) => {
     fetch(
@@ -43,19 +54,6 @@ const Menu: React.FC = () => {
       });
   };
 
-  const handleSortChange = (option: string) => {
-    setSortBy(option);
-  };
-
-  const sortedMenuItems = (): MenuItem[] => {
-    if (!Array.isArray(menuItems)) return [];
-
-    if (sortBy) {
-      return menuItems.filter((item) => item.ingredients.includes(sortBy));
-    }
-
-    return menuItems;
-  };
 
   const handleUpdate = (id: number, updatedData: Partial<MenuItem>) => {
     fetch(
@@ -98,22 +96,41 @@ const Menu: React.FC = () => {
       });
   };
 
+  const handleSort = (sortOption: string) => {
+    const sortedItems = [...menuItems].sort((a, b) => {
+      if (sortOption === "ก-ฮ") {
+        return a.name.localeCompare(b.name, "th");
+      } else if (sortOption === "ฮ-ก") {
+        return b.name.localeCompare(a.name, "th");
+      }
+      return 0;
+    });
+    setMenuItems(sortedItems);
+  };
+
   return (
     <div className="flex">
       <Sidebar />
 
       <div className="p-6 w-full flex-1">
         <Header
-          title="จัดการเมนูอาหาร"
-          sortOptions={["ทั่วไป", "ฮาลาล", "มังสวิรัติ", "วีแกน"]}
-          onSortChange={handleSortChange}
-          addPath="/Menu/AddMenu"
+          title="Menu"
+          sortOptions={["ก-ฮ", "ฮ-ก"]}
+          onSortChange={(selectedOption) => {
+            setSortBy(selectedOption);
+            handleSort(selectedOption);
+          }}
+          addPath="/add-menu-item"
         />
         <div className="grid grid-cols-4 gap-4">
-          {sortedMenuItems().map((item) => (
+          {(menuItems).map((item) => (
             <FoodCard
               key={item.id}
-              item={item}
+              item={{
+                id: item.id,
+                name: item.name,
+                image: item.image,
+              }}
               onDelete={() => handleDelete(item.id)}
               onUpdate={() => handleUpdate(item.id, { name: "Updated Name" })}
             />
