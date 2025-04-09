@@ -17,7 +17,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      router.push("/admin");
+      router.push("/Menu");
     }
   }, []);
 
@@ -57,7 +57,7 @@ const Login = () => {
       setEmail(""); // ล้างค่า email
       setPassword(""); // ล้างค่า password
 
-      router.push("/admin");
+      router.push("/Menu");
     } catch (err: any) {
       console.error("Error logging in:", err);
       setError(err.message || "An error occurred. Please try again.");
