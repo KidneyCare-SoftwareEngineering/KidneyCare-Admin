@@ -114,21 +114,6 @@ export default function AddFoodMenu() {
               onChange={(e) => setFoodName(e.target.value)}
               type="text"
             />
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                ประเภทอาหาร
-              </label>
-              <select
-                value={foodType}
-                onChange={(e) => setFoodType(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
-              >
-                <option value="ทั่วไป">ทั่วไป</option>
-                <option value="ฮาลาล">ฮาลาล</option>
-                <option value="มังสวิรัติ">มังสวิรัติ</option>
-                <option value="วีแกน">วีแกน</option>
-              </select>
-            </div>
             <div className="mt-4 flex gap-2">
               {images.map((image, index) => (
                 <div
