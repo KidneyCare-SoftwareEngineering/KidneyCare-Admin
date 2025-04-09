@@ -16,7 +16,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col bg-white w-60 h-screen drop-shadow-lg p-4">
+    <div className="flex flex-col bg-white w-60 min-h-screen drop-shadow-lg p-4">
       <div className="flex flex-row items-center gap-2 p-2 mb-4 text-black text-body3">
         <Icon icon="mdi:account-circle" height="24" className="text-black" />
         <span className="font-semibold">Admin01</span>
