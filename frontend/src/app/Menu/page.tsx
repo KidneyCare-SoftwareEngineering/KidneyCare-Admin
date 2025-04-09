@@ -29,7 +29,18 @@ const Menu: React.FC = () => {
   }, []);
 
   const handleDelete = (id: number) => {
-    setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    fetch(
+      `https://backend-billowing-waterfall-4640.fly.dev/delete_recipe/${id}`,
+      {
+        method: "DELETE",
+      }
+    )
+      .then(() => {
+        setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      })
+      .catch((error) => {
+        console.error("Error deleting menu item:", error);
+      });
   };
 
   const handleSortChange = (option: string) => {
@@ -44,6 +55,47 @@ const Menu: React.FC = () => {
     }
 
     return menuItems;
+  };
+
+  const handleUpdate = (id: number, updatedData: Partial<MenuItem>) => {
+    fetch(
+      `https://backend-billowing-waterfall-4640.fly.dev/update_recipe/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      }
+    )
+      .then((response) => response.json())
+      .then((updatedItem) => {
+        setMenuItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === id ? { ...item, ...updatedItem } : item
+          )
+        );
+      })
+      .catch((error) => {
+        console.error("Error updating menu item:", error);
+      });
+  };
+
+  const handleCreate = (newItem: MenuItem) => {
+    fetch("https://backend-billowing-waterfall-4640.fly.dev/create_recipe", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newItem),
+    })
+      .then((response) => response.json())
+      .then((createdItem) => {
+        setMenuItems((prevItems) => [...prevItems, createdItem]);
+      })
+      .catch((error) => {
+        console.error("Error creating menu item:", error);
+      });
   };
 
   return (
@@ -63,6 +115,7 @@ const Menu: React.FC = () => {
               key={item.id}
               item={item}
               onDelete={() => handleDelete(item.id)}
+              onUpdate={() => handleUpdate(item.id, { name: "Updated Name" })}
             />
           ))}
         </div>

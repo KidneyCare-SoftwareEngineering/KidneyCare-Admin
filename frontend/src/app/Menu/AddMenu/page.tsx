@@ -4,8 +4,10 @@ import { useState, useRef } from "react";
 import { Icon } from "@iconify/react";
 import TextField from "../../../../Components/Textfield";
 import Sidebar from "../../../../Components/Sidebar";
+import { useRouter } from "next/navigation";
 
-export default function AddMenu() {
+export default function AddFoodMenu() {
+  const router = useRouter();
   const [ingredients, setIngredients] = useState([
     { name: "", amount: "", unit: "" },
   ]);
@@ -47,17 +49,37 @@ export default function AddMenu() {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  const handleSave = async () => {
     const data = {
-      name: foodName,
+      foodName,
       nutrition,
       ingredients,
       steps,
       images,
     };
 
-    console.log("ส่งข้อมูล:", data);
-    // TODO: เรียก API POST เพื่อเพิ่มเมนู
+    try {
+      const response = await fetch(
+        "https://backend-billowing-waterfall-4640.fly.dev/create_recipe",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      alert("บันทึกเมนูเรียบร้อยแล้ว!");
+      router.push("/Menu");
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาด:", error);
+      alert("ไม่สามารถบันทึกเมนูได้");
+    }
   };
 
   return (
@@ -66,8 +88,8 @@ export default function AddMenu() {
 
       <div className="p-6 max-w-5xl mx-auto flex-1">
         <h2 className="text-2xl font-bold mb-4">เพิ่มเมนูอาหาร</h2>
-
         <div className="grid grid-cols-2 gap-6">
+          {/* ข้อมูลทั่วไป */}
           <div>
             <h3 className="text-lg font-semibold">ข้อมูลทั่วไป</h3>
             <TextField
@@ -76,7 +98,6 @@ export default function AddMenu() {
               onChange={(e) => setFoodName(e.target.value)}
               type="text"
             />
-
             <div className="mt-4 flex gap-2">
               {images.map((image, index) => (
                 <div
@@ -113,6 +134,7 @@ export default function AddMenu() {
             </div>
           </div>
 
+          {/* ข้อมูลสารอาหาร */}
           <div>
             <h3 className="text-lg font-semibold mb-2">ข้อมูลสารอาหาร</h3>
             <div className="grid grid-cols-4 gap-2">
@@ -131,6 +153,7 @@ export default function AddMenu() {
           </div>
         </div>
 
+        {/* วัตถุดิบ */}
         <div className="mt-6">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-semibold">ข้อมูลวัตถุดิบ</h3>
@@ -153,7 +176,8 @@ export default function AddMenu() {
                   setIngredients(newIngredients);
                 }}
                 type="text"
-                className="flex-1"
+                className="flex-1 w-full"
+                style={{ width: "100%" }}
               />
               <TextField
                 label="จำนวน"
@@ -187,6 +211,7 @@ export default function AddMenu() {
           ))}
         </div>
 
+        {/* ขั้นตอนการทำ */}
         <div className="mt-6">
           <h3 className="text-lg font-semibold">ขั้นตอนการทำ</h3>
           <textarea
@@ -197,12 +222,16 @@ export default function AddMenu() {
           />
         </div>
 
+        {/* ปุ่ม */}
         <div className="flex justify-end gap-3 mt-6">
-          <button className="px-6 py-2 border border-gray-400 text-gray-800 rounded-md hover:bg-gray-200">
+          <button
+            onClick={() => router.push("/Menu")}
+            className="px-6 py-2 border border-gray-400 text-gray-800 rounded-md hover:bg-gray-200"
+          >
             ยกเลิก
           </button>
           <button
-            onClick={handleSubmit}
+            onClick={handleSave}
             className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
           >
             บันทึก

@@ -10,9 +10,10 @@ interface FoodCardProps {
     image: string;
   };
   onDelete: () => void;
+  onUpdate: () => void;
 }
 
-const FoodCard: React.FC<FoodCardProps> = ({ item, onDelete }) => {
+const FoodCard: React.FC<FoodCardProps> = ({ item, onDelete, onUpdate }) => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDelete = () => {
@@ -38,7 +39,10 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, onDelete }) => {
       <div className="p-4 text-center">
         <h3 className="text-lg font-semibold">{item.name}</h3>
         <div className="flex justify-between gap-x-5 mt-2 px-3">
-          <button className="flex items-center justify-center gap-1 px-4 py-2 border border-orange-500 text-orange-500 rounded-md shadow-sm hover:bg-orange-500 hover:text-white active:bg-orange-600 transition w-full max-w-[calc(50%-10px)]">
+          <button
+            onClick={onUpdate}
+            className="flex items-center justify-center gap-1 px-4 py-2 border border-orange-500 text-orange-500 rounded-md shadow-sm hover:bg-orange-500 hover:text-white active:bg-orange-600 transition w-full max-w-[calc(50%-10px)]"
+          >
             <Icon icon="tabler:pencil" width="16" /> แก้ไข
           </button>
           <button
@@ -50,7 +54,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, onDelete }) => {
         </div>
       </div>
 
-      {/* Pop-up confir */}
+      {/* Pop-up confirm */}
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
