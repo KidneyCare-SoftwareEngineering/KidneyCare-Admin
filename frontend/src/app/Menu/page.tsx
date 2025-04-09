@@ -40,6 +40,10 @@ const Menu: React.FC = () => {
       });
   }, []);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleDelete = (id: number) => {
     fetch(
       `https://backend-billowing-waterfall-4640.fly.dev/delete_recipe/${id}`,
@@ -100,7 +104,8 @@ const Menu: React.FC = () => {
       return 0;
     });
     setMenuItems(sortedItems);
-    setCurrentPage(1); // reset ไปหน้าแรกเมื่อ sort
+    setCurrentPage(1);
+    scrollToTop();
   };
 
   // Pagination logic
@@ -142,7 +147,13 @@ const Menu: React.FC = () => {
         {/* Pagination Controls */}
         <div className="flex justify-center items-center mt-6 space-x-2">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => {
+              setCurrentPage((prev) => {
+                const newPage = Math.max(prev - 1, 1);
+                scrollToTop();
+                return newPage;
+              });
+            }}
             disabled={currentPage === 1}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
           >
@@ -151,7 +162,10 @@ const Menu: React.FC = () => {
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i + 1}
-              onClick={() => setCurrentPage(i + 1)}
+              onClick={() => {
+                setCurrentPage(i + 1);
+                scrollToTop();
+              }}
               className={`px-3 py-1 rounded ${
                 currentPage === i + 1
                   ? "bg-orange-500 text-white"
@@ -162,9 +176,13 @@ const Menu: React.FC = () => {
             </button>
           ))}
           <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
+            onClick={() => {
+              setCurrentPage((prev) => {
+                const newPage = Math.min(prev + 1, totalPages);
+                scrollToTop();
+                return newPage;
+              });
+            }}
             disabled={currentPage === totalPages}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
           >
