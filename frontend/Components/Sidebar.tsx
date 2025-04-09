@@ -10,6 +10,8 @@ export default function Sidebar() {
   const router = useRouter();
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    setSelectedMenu("menu1");
     router.push("/Login");
   };
 

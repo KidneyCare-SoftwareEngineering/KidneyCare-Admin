@@ -17,7 +17,7 @@ const Menu: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("");
 
   useEffect(() => {
-    fetch("https://backend-billowing-waterfall-4640.fly.dev/get_recipes")
+    fetch("https://8bc0-125-24-15-48.ngrok-free.app/get_recipes")
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -105,7 +105,7 @@ const Menu: React.FC = () => {
       <div className="p-6 w-full flex-1">
         <Header
           title="จัดการเมนูอาหาร"
-          sortOptions={["ผัด", "ทอด"]}
+          sortOptions={["ทั่วไป", "ฮาลาล", "มังสวิรัติ", "วีแกน"]}
           onSortChange={handleSortChange}
           addPath="/Menu/AddMenu"
         />

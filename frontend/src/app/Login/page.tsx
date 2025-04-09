@@ -8,7 +8,7 @@ const API_BASE_URL =
   "https://backend-billowing-waterfall-4640.fly.dev/admin_login";
 
 const Login = () => {
-  const [email, setEmail] = useState<string>(""); // ใช้ email แทน username
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -32,8 +32,7 @@ const Login = () => {
     setError("");
     setIsLoading(true);
 
-    const loginData = { email, password }; // ใช้ email แทน username
-
+    const loginData = { email, password };
     try {
       const response = await fetch(API_BASE_URL, {
         method: "POST",
@@ -46,16 +45,14 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        // ตรวจสอบ success ว่าเป็น true หรือไม่
         throw new Error(data?.message || "Invalid email or password");
       }
 
-      // เมื่อเข้าสู่ระบบสำเร็จ
       localStorage.setItem("token", data.token);
 
       setIsLoading(false);
-      setEmail(""); // ล้างค่า email
-      setPassword(""); // ล้างค่า password
+      setEmail("");
+      setPassword("");
 
       router.push("/Menu");
     } catch (err: any) {
