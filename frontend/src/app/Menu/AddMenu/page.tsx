@@ -23,6 +23,7 @@ export default function AddFoodMenu() {
     water: "",
   });
   const [images, setImages] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [steps, setSteps] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,35 +39,50 @@ export default function AddFoodMenu() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const newImages = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setImages((prevImages) => [...prevImages, ...newImages].slice(0, 3));
+      const fileArray = Array.from(files).slice(0, 3 - images.length);
+      const imagePreviews = fileArray.map((file) => URL.createObjectURL(file));
+      setImages((prev) => [...prev, ...imagePreviews]);
+      setImageFiles((prev) => [...prev, ...fileArray]);
     }
   };
 
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+    setImageFiles(imageFiles.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
-    const data = {
-      foodName,
-      nutrition,
-      ingredients,
-      steps,
-      images,
-    };
+    const formData = new FormData();
+
+    formData.append("recipe_name", foodName);
+    formData.append(
+      "recipe_method",
+      JSON.stringify(steps.split("\n").filter((step) => step.trim() !== ""))
+    );
+    formData.append("calories", "450.5");
+    formData.append("calories_unit", "kcal");
+    formData.append("food_category", "Main Dish");
+    formData.append("dish_type", "Stir-Fry");
+
+    formData.append("ingredients", JSON.stringify(ingredients));
+    formData.append("nutrients", JSON.stringify(nutrition));
+
+    imageFiles.forEach((file) => {
+      formData.append("image", file);
+    });
+
+    // Log formData contents to inspect before sending
+    console.log("Form Data to be sent:");
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
 
     try {
       const response = await fetch(
         "https://backend-billowing-waterfall-4640.fly.dev/create_recipe",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+          body: formData,
         }
       );
 
@@ -85,7 +101,6 @@ export default function AddFoodMenu() {
   return (
     <div className="flex">
       <Sidebar />
-
       <div className="p-6 max-w-5xl mx-auto flex-1">
         <h2 className="text-2xl font-bold mb-4">เพิ่มเมนูอาหาร</h2>
         <div className="grid grid-cols-2 gap-6">
@@ -177,7 +192,6 @@ export default function AddFoodMenu() {
                 }}
                 type="text"
                 className="flex-1 w-full"
-                style={{ width: "100%" }}
               />
               <TextField
                 label="จำนวน"
