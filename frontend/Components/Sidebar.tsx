@@ -1,72 +1,94 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 
-type MenuItem = "menu1" | "menu2" | "menu3";
+type MenuItemKey = "menu1" | "menu2" | "menu3";
+
+const MENU_ITEMS: Record<MenuItemKey, {
+  label: string;
+  icon: string;
+  path?: string;
+  external?: boolean;
+}> = {
+  menu1: {
+    label: "จัดการเมนูอาหาร",
+    icon: "material-symbols:food-bank",
+    path: "/Menu",
+  },
+  menu2: {
+    label: "จัดการวัตถุดิบ",
+    icon: "mdi:fish-food",
+    path: "/Ingredients",
+  },
+  menu3: {
+    label: "จัดการข้อความ",
+    icon: "material-symbols:chat-outline",
+    path: "https://chat.line.biz/Ub4b7e0554e30f34b42401f875fdc8414",
+    external: true,
+  },
+};
 
 export default function Sidebar() {
-  const [selectedMenu, setSelectedMenu] = useState<MenuItem>("menu1");
+  const [selectedMenu, setSelectedMenu] = useState<MenuItemKey>("menu1");
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
-    setSelectedMenu("menu1");
     router.push("/Login");
-  };
+  }, [router]);
+
+  useEffect(() => {
+    console.log("Selected menu changed:", selectedMenu);
+  }, [selectedMenu]);
 
   return (
-    <div className="flex flex-col bg-white w-60 min-h-screen drop-shadow-lg p-4">
+    <div className="flex flex-col bg-white w-60 min-h-screen drop-shadow-lg pb-6">
       <div className="flex flex-row items-center gap-2 p-2 mb-4 text-black text-body3">
         <Icon icon="mdi:account-circle" height="24" className="text-black" />
         <span className="font-semibold">Admin01</span>
       </div>
 
       <div className="flex flex-col gap-2">
-        <div
-          className={`flex flex-row items-center gap-2 p-2 ${
-            selectedMenu === "menu1"
-              ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
-              : "text-gray-400 font-normal"
-          }`}
-          onClick={() => {
-            setSelectedMenu("menu1");
-            router.push("/Menu");
-          }}
-        >
-          <Icon icon="material-symbols:food-bank" height="20" />
-          <span>จัดการเมนูอาหาร</span>
-        </div>
+        {Object.entries(MENU_ITEMS).map(([key, item]) => {
+          const isActive = selectedMenu === key;
+          const baseClass = isActive
+            ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
+            : "text-gray-400 font-normal";
 
-        <div
-          className={`flex flex-row items-center gap-2 p-2 ${
-            selectedMenu === "menu2"
-              ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
-              : "text-gray-400 font-normal"
-          }`}
-          onClick={() => {
-            setSelectedMenu("menu2");
-            router.push("/Ingredients");
-          }}
-        >
-          <Icon icon="mdi:fish-food" height="20" />
-          <span>จัดการวัตถุดิบ</span>
-        </div>
+          if (item.external) {
+            return (
+              <a
+                key={key}
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex flex-row items-center gap-2 p-2 cursor-pointer ${baseClass}`}
+                onClick={() => setSelectedMenu(key as MenuItemKey)}
+              >
+                <Icon icon={item.icon} height="20" />
+                <span>{item.label}</span>
+              </a>
+            );
+          }
 
-        <a
-          href="https://chat.line.biz/Ub4b7e0554e30f34b42401f875fdc8414"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`flex flex-row items-center gap-2 p-2 cursor-pointer ${
-            selectedMenu === "menu3"
-              ? "bg-orange-100 text-orange-500 font-semibold border-l-4 border-orange-500"
-              : "text-gray-400 font-normal"
-          }`}
-          onClick={() => setSelectedMenu("menu3")}
-        >
-          <Icon icon="material-symbols:chat-outline" height="20" />
-          <span>จัดการข้อความ</span>
-        </a>
+          return (
+            <div
+              key={key}
+              className={`flex flex-row items-center gap-2 p-2 cursor-pointer ${baseClass}`}
+              onClick={(e) => {
+                e.preventDefault();
+                if (selectedMenu !== key) {
+                  setSelectedMenu(key as MenuItemKey);
+                  router.push(item.path!);
+                }
+              }}
+            >
+              <Icon icon={item.icon} height="20" />
+              <span>{item.label}</span>
+            </div>
+          );
+        })}
       </div>
 
       <div

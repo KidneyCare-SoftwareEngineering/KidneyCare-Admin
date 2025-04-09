@@ -12,17 +12,18 @@ export default function AddFoodMenu() {
     { name: "", amount: "", unit: "" },
   ]);
   const [foodName, setFoodName] = useState("");
-  const [foodType, setFoodType] = useState("ทั่วไป");
+  const [foodType, setFoodType] = useState<string[]>(["ทั่วไป"]);
   const [nutrition, setNutrition] = useState({
     protein: "",
     vitamin: "",
     fat: "",
-    fiber: "",
-    carbs: "",
-    sodium: "",
     potassium: "",
+    carbs: "",
+    phosphorus: "",
+    sodium: "",
     water: "",
   });
+  const [calories, setCalories] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [steps, setSteps] = useState("");
@@ -40,19 +41,57 @@ export default function AddFoodMenu() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const fileArray = Array.from(files).slice(0, 3 - images.length);
-      const imagePreviews = fileArray.map((file) => URL.createObjectURL(file));
-      setImages((prev) => [...prev, ...imagePreviews]);
+      const fileArray = Array.from(files).slice(0, 3 - imageFiles.length);
       setImageFiles((prev) => [...prev, ...fileArray]);
     }
   };
 
   const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
     setImageFiles(imageFiles.filter((_, i) => i !== index));
   };
 
+  const previewFormData = () => {
+    const formData = new FormData();
+    formData.append("recipe_name", foodName);
+    formData.append(
+      "recipe_method",
+      JSON.stringify(steps.split("\n").filter((step) => step.trim() !== ""))
+    );
+    formData.append("calories", calories);
+    formData.append("calories_unit", "kcal");
+    formData.append("food_category", JSON.stringify(foodType));
+    formData.append("dish_type", "Stir-Fry");
+    formData.append("ingredients", JSON.stringify(ingredients));
+    formData.append("nutrients", JSON.stringify(nutrition));
+    imageFiles.forEach((file) => {
+      formData.append("image", file);
+    });
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+  };
+
+
+
+
+
+
   const handleSave = async () => {
+    // Validation
+    if (!foodName.trim()) {
+      alert("กรุณากรอกชื่อเมนูอาหาร");
+      return;
+    }
+    if (ingredients.some((ingredient) => !ingredient.name.trim())) {
+      alert("กรุณากรอกข้อมูลวัตถุดิบให้ครบถ้วน");
+      return;
+    }
+    if (ingredients.some((ingredient) => !ingredient.amount.trim())) {
+      alert("กรุณากรอกข้อมูลวัตถุดิบให้ครบถ้วน");
+      return;
+    }
+
     const formData = new FormData();
 
     formData.append("recipe_name", foodName);
@@ -60,11 +99,10 @@ export default function AddFoodMenu() {
       "recipe_method",
       JSON.stringify(steps.split("\n").filter((step) => step.trim() !== ""))
     );
-    formData.append("calories", "450.5");
+    formData.append("calories", calories);
     formData.append("calories_unit", "kcal");
-    formData.append("food_category", "Main Dish");
+    formData.append("food_category", JSON.stringify(foodType));
     formData.append("dish_type", "Stir-Fry");
-    formData.append("food_type", foodType);
 
     formData.append("ingredients", JSON.stringify(ingredients));
     formData.append("nutrients", JSON.stringify(nutrition));
@@ -94,35 +132,57 @@ export default function AddFoodMenu() {
       alert("บันทึกเมนูเรียบร้อยแล้ว!");
       router.push("/Menu");
     } catch (error) {
-      console.error("เกิดข้อผิดพลาด:", error);
-      alert("ไม่สามารถบันทึกเมนูได้");
+      console.log("เกิดข้อผิดพลาด:", error);
     }
   };
+
+  const toggleFoodType = (type: string) => {
+    setFoodType((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const categoryList = [
+    "ทั่วไป",
+    "ฮาลาล",
+    "วีแกน",
+    "มังสวิรัติ",
+    "ผลไม้",
+  ];
+
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="p-6 max-w-5xl mx-auto flex-1">
         <h2 className="text-2xl font-bold mb-4">เพิ่มเมนูอาหาร</h2>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-[1fr_3fr] gap-6 w-full">
           {/* ข้อมูลทั่วไป */}
-          <div>
-            <h3 className="text-lg font-semibold">ข้อมูลทั่วไป</h3>
+          <div className="flex flex-col">
+            <h3 className="text-lg font-semibold mb-2">ข้อมูลทั่วไป</h3>
             <TextField
               label="ชื่อเมนูอาหาร"
               value={foodName}
               onChange={(e) => setFoodName(e.target.value)}
               type="text"
             />
+            <div className="mt-2">
+              <TextField
+                label="แคลอรี่ (kcal)"
+                value={calories}
+                onChange={(e) => setCalories(e.target.value)}
+                type="number"
+              />
+            </div>
             <div className="mt-4 flex gap-2">
-              {images.map((image, index) => (
+              {imageFiles.map((file, index) => (
                 <div
                   key={index}
                   className="relative w-32 h-32 border border-gray-300 rounded-md overflow-hidden cursor-pointer"
                   onClick={() => removeImage(index)}
                 >
                   <img
-                    src={image}
+                    src={URL.createObjectURL(file)}
                     alt={`อาหาร ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -131,7 +191,7 @@ export default function AddFoodMenu() {
                   </div>
                 </div>
               ))}
-              {images.length < 3 && (
+              {imageFiles.length < 3 && (
                 <div
                   className="w-32 h-32 flex items-center justify-center border-dashed border-2 border-gray-400 rounded-md cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
@@ -151,23 +211,60 @@ export default function AddFoodMenu() {
           </div>
 
           {/* ข้อมูลสารอาหาร */}
-          <div>
+          <div className="flex flex-col">
             <h3 className="text-lg font-semibold mb-2">ข้อมูลสารอาหาร</h3>
             <div className="grid grid-cols-4 gap-2">
-              {Object.keys(nutrition).map((key) => (
-                <TextField
-                  key={key}
-                  label={key}
-                  value={nutrition[key as keyof typeof nutrition]}
-                  onChange={(e) =>
-                    setNutrition({ ...nutrition, [key]: e.target.value })
-                  }
-                  type="text"
-                />
-              ))}
+              {Object.keys(nutrition).map((key) => {
+                const labels: { [key: string]: string } = {
+                  protein: "โปรตีน (กรัม)",
+                  vitamin: "วิตามิน (มิลลิกรัม)",
+                  fat: "ไขมัน (กรัม)",
+                  phosphorus: "ฟอสฟอรัส (มิลลิกรัม)",
+                  carbs: "คาร์โบไฮเดรต (กรัม)",
+                  sodium: "โซเดียม (มิลลลิกรัม)",
+                  potassium: "โพแทสเซียม (มิลลิกรัม)",
+                  water: "น้ำ (มิลลิลิตร)",
+                };
+                return (
+                  <TextField
+                    key={key}
+                    label={labels[key] || key}
+                    value={nutrition[key as keyof typeof nutrition]}
+                    onChange={(e) =>
+                      setNutrition({
+                        ...nutrition,
+                        [key]: e.target.value,
+                      })
+                    }
+                    type="text"
+                  />
+                );
+              })}
             </div>
           </div>
         </div>
+
+        {/* ประเภทอาหาร */}
+        <div className="mt-4">
+          <label className="block font-semibold mb-2 text-gray-700">ประเภทอาหาร</label>
+          <div className="flex flex-wrap gap-2">
+            {categoryList.map((type) => (
+              <label
+                key={type}
+                className="w-24 flex items-center space-x-2 p-2 border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 bg-white"
+              >
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-400"
+                  checked={foodType.includes(type)}
+                  onChange={() => toggleFoodType(type)}
+                />
+                <span className="text-gray-800">{type}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
 
         {/* วัตถุดิบ */}
         <div className="mt-6">
@@ -250,6 +347,12 @@ export default function AddFoodMenu() {
             className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
           >
             บันทึก
+          </button>
+          <button
+            onClick={previewFormData}
+            className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md"
+          >
+            Preview FormData
           </button>
         </div>
       </div>

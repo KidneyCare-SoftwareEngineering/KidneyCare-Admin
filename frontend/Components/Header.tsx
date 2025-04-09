@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({
           <input
             type="text"
             className="border rounded p-2 pl-8 w-48"
-            placeholder={title === "Menu" ? "ค้นหาเมนู" : `ค้นหาเมนู${title.replace("จัดการ", "").trim()}...`}
+            placeholder={title === "Menu" ? "ค้นหา" : `ค้นหา${title.replace("จัดการ", "").trim()}...`}
           />
           <Icon
             icon="tabler:search"

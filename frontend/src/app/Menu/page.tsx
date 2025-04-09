@@ -15,7 +15,7 @@ const Menu: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [sortBy, setSortBy] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 20;
 
   useEffect(() => {
     fetch("https://backend-billowing-waterfall-4640.fly.dev/get_recipes")
@@ -115,6 +115,26 @@ const Menu: React.FC = () => {
     currentPage * itemsPerPage
   );
 
+  const getPaginationButtons = () => {
+    const buttons = [];
+    if (totalPages <= 5) {
+      // Show all pages if total pages are 5 or less
+      for (let i = 1; i <= totalPages; i++) {
+        buttons.push(i);
+      }
+    } else {
+      // Show first, last, current, and neighbors with ellipsis
+      if (currentPage > 2) buttons.push(1);
+      if (currentPage > 3) buttons.push("...");
+      for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages, currentPage + 1); i++) {
+        buttons.push(i);
+      }
+      if (currentPage < totalPages - 2) buttons.push("...");
+      if (currentPage < totalPages - 1) buttons.push(totalPages);
+    }
+    return buttons;
+  };
+
   return (
     <div className="flex">
       <Sidebar />
@@ -138,8 +158,8 @@ const Menu: React.FC = () => {
                 name: item.name,
                 image: item.image,
               }}
-              onDelete={() => handleDelete(item.id)}
-              onUpdate={() => handleUpdate(item.id, { name: "Updated Name" })}
+              onDelete={() => console.log(`Delete item ${item.id}`)}
+              onUpdate={() => console.log(`Update item ${item.id}`)}
             />
           ))}
         </div>
@@ -159,22 +179,27 @@ const Menu: React.FC = () => {
           >
             ย้อนกลับ
           </button>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => {
-                setCurrentPage(i + 1);
-                scrollToTop();
-              }}
-              className={`px-3 py-1 rounded ${
-                currentPage === i + 1
+          {getPaginationButtons().map((button, index) =>
+            typeof button === "number" ? (
+              <button
+                key={index}
+                onClick={() => {
+                  setCurrentPage(button);
+                  scrollToTop();
+                }}
+                className={`px-3 py-1 rounded ${currentPage === button
                   ? "bg-orange-500 text-white"
                   : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
+                  }`}
+              >
+                {button}
+              </button>
+            ) : (
+              <span key={index} className="px-3 py-1">
+                ...
+              </span>
+            )
+          )}
           <button
             onClick={() => {
               setCurrentPage((prev) => {
