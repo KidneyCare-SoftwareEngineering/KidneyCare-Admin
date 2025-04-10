@@ -1,35 +1,107 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Icon } from "@iconify/react";
-import TextField from "../../../../Components/Textfield";
-import Sidebar from "../../../../Components/Sidebar";
 import { useRouter } from "next/navigation";
+import TextField from "../../../../../Components/Textfield";
+import Sidebar from "../../../../../Components/Sidebar";
 
-export default function AddFoodMenu() {
+// Define the Ingredient type
+type Ingredient = {
+  name: string;
+  amount: string;
+  unit: string;
+};
+
+// Mock data
+const mockData = {
+  recipe_id: 128,
+  recipe_name: "แพนเค้กกล้วยหอมไร้แป้ง",
+  recipe_image: "https://www.healthyfood.com/media/1647/banana-pancakes.jpg?anchor=center&mode=crop&width=800&height=450&rnd=132197761270000000",
+  recipe_method: [
+    "STEP1 :บดกล้วยหอมให้เนียนด้วยส้อม หรือปั่นให้เนียน",
+    "STEP2 :ตีไข่ไก่ให้เข้ากัน แล้วผสมกับกล้วยบด",
+    "STEP3 :ใส่ผงฟูและกลิ่นวานิลลา คนให้เข้ากันดี",
+    "STEP4 :ตั้งกระทะ ใช้ไฟอ่อน-ปานกลาง ทาน้ำมันบาง ๆ",
+    "STEP5 :ตักแป้งแพนเค้กหยอดลงกระทะ ทอดประมาณ 1-2 นาทีจนมีฟองอากาศขึ้น",
+    "STEP6 :กลับด้าน ทอดต่ออีก 1 นาทีจนสุก",
+    "STEP7 :ตักขึ้นเสิร์ฟ กินเปล่า ๆ หรือเพิ่มผลไม้ตามชอบ! ",
+  ],
+  calories: 220.0,
+  food_category: ["ทั่วไป"],
+  dish_type: ["ของหวาน"],
+  ingredients: [
+    { ingredient_name: "กลิ่นวานิลลา", amount: "1", unit: "ช้อนชา" },
+    { ingredient_name: "ไข่ไก่", amount: "2", unit: "ฟอง" },
+    { ingredient_name: "น้ำมันมะพร้าว", amount: "1", unit: "ช้อนโต๊ะ" },
+    { ingredient_name: "ผงฟู", amount: "1", unit: "ช้อนชา" },
+    { ingredient_name: "กล้วยหอม", amount: "1", unit: "ผล" },
+  ],
+  nutrients: {
+    protein: "10.5",
+    carbs: "30.0",
+    fat: "370.0",
+    sodium: "3.2",
+    potassium: "7.5",
+    phosphorus: "150.0",
+    vitamin: "0.1",
+    water: "0.0",
+  },
+};
+
+const EditMenuPage = () => {
   const router = useRouter();
-  const [ingredients, setIngredients] = useState([
-    { name: "", amount: "", unit: "" },
-  ]);
-  const [foodName, setFoodName] = useState("");
-  const [foodType, setFoodType] = useState<string[]>(["ทั่วไป"]);
+
+  // State for managing data
+  const [foodName, setFoodName] = useState<string>("");
+  const [calories, setCalories] = useState<string>("");
   const [nutrition, setNutrition] = useState({
     protein: "",
-    vitamin: "",
-    fat: "",
-    potassium: "",
     carbs: "",
-    phosphorus: "",
+    fat: "",
     sodium: "",
+    potassium: "",
+    phosphorus: "",
+    vitamin: "",
     water: "",
   });
-  const [calories, setCalories] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+  const categoryList = [
+    "ทั่วไป",
+    "ฮาลาล",
+    "วีแกน",
+    "มังสวิรัติ",
+    "ผลไม้",
+  ];
+  const [foodType, setFoodType] = useState<string[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [steps, setSteps] = useState<string>("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [steps, setSteps] = useState("");
-
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Prefill data from mockData
+  useEffect(() => {
+    setFoodName(mockData.recipe_name);
+    setCalories(mockData.calories.toString());
+    setNutrition(mockData.nutrients);
+    setFoodType(mockData.food_category);
+    setIngredients(
+      mockData.ingredients.map((ingredient) => ({
+        name: ingredient.ingredient_name,
+        amount: ingredient.amount,
+        unit: ingredient.unit,
+      }))
+    );
+    setSteps(mockData.recipe_method.join("\n"));
+  }, []);
+
+  // ฟังก์ชันจัดการประเภทอาหาร
+  const toggleFoodType = (type: string) => {
+    setFoodType((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  // ฟังก์ชันจัดการวัตถุดิบ
   const addIngredient = () => {
     setIngredients([...ingredients, { name: "", amount: "", unit: "" }]);
   };
@@ -38,6 +110,7 @@ export default function AddFoodMenu() {
     setIngredients(ingredients.filter((_, i) => i !== index));
   };
 
+  // ฟังก์ชันจัดการอัปโหลดรูปภาพ
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
@@ -50,111 +123,26 @@ export default function AddFoodMenu() {
     setImageFiles(imageFiles.filter((_, i) => i !== index));
   };
 
-  const previewFormData = () => {
-    const formData = new FormData();
-    formData.append("recipe_name", foodName);
-    formData.append(
-      "recipe_method",
-      JSON.stringify(steps.split("\n").filter((step) => step.trim() !== ""))
-    );
-    formData.append("calories", calories);
-    formData.append("calories_unit", "kcal");
-    formData.append("food_category", JSON.stringify(foodType));
-    formData.append("dish_type", "Stir-Fry");
-    formData.append("ingredients", JSON.stringify(ingredients));
-    formData.append("nutrients", JSON.stringify(nutrition));
-    imageFiles.forEach((file) => {
-      formData.append("image", file);
-    });
-
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
+  // ฟังก์ชันบันทึกข้อมูล
+  const handleSave = () => {
+    const recipeData = {
+      foodName,
+      calories,
+      nutrition,
+      foodType,
+      ingredients,
+      steps,
+      images: imageFiles,
+    };
+    console.log("บันทึกข้อมูล:", recipeData);
+    router.push("/Menu");
   };
-
-
-
-
-
-
-  const handleSave = async () => {
-    if (!foodName.trim()) {
-      alert("กรุณากรอกชื่อเมนูอาหาร");
-      return;
-    }
-    if (ingredients.some((ingredient) => !ingredient.name.trim())) {
-      alert("กรุณากรอกข้อมูลวัตถุดิบให้ครบถ้วน");
-      return;
-    }
-    if (ingredients.some((ingredient) => !ingredient.amount.trim())) {
-      alert("กรุณากรอกข้อมูลวัตถุดิบให้ครบถ้วน");
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("recipe_name", foodName);
-    formData.append(
-      "recipe_method",
-      JSON.stringify(steps.split("\n").filter((step) => step.trim() !== ""))
-    );
-    formData.append("calories", calories);
-    formData.append("calories_unit", "kcal");
-    formData.append("food_category", JSON.stringify(foodType));
-    formData.append("dish_type", "Stir-Fry");
-
-    formData.append("ingredients", JSON.stringify(ingredients));
-    formData.append("nutrients", JSON.stringify(nutrition));
-
-    imageFiles.forEach((file) => {
-      formData.append("image", file);
-    });
-
-    console.log("Form Data to be sent:");
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-
-    try {
-      const response = await fetch(
-        "https://backend-billowing-waterfall-4640.fly.dev/create_recipe",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      // alert("บันทึกเมนูเรียบร้อยแล้ว!");
-      router.push("/Menu");
-    } catch (error) {
-      console.log("เกิดข้อผิดพลาด:", error);
-    }
-  };
-
-  const toggleFoodType = (type: string) => {
-    setFoodType((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
-
-  const categoryList = [
-    "ทั่วไป",
-    "ฮาลาล",
-    "วีแกน",
-    "มังสวิรัติ",
-    "ผลไม้",
-  ];
-
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="p-6 max-w-5xl mx-auto flex-1">
-        <h2 className="text-2xl font-bold mb-4">เพิ่มเมนูอาหาร</h2>
+        <h2 className="text-2xl font-bold mb-4">แก้ไขเมนูอาหาร</h2>
         <div className="grid grid-cols-[1fr_3fr] gap-6 w-full">
           {/* ข้อมูลทั่วไป */}
           <div className="flex flex-col">
@@ -264,7 +252,6 @@ export default function AddFoodMenu() {
           </div>
         </div>
 
-
         {/* วัตถุดิบ */}
         <div className="mt-6">
           <div className="flex justify-between items-center mb-2">
@@ -276,12 +263,12 @@ export default function AddFoodMenu() {
               <Icon icon="tabler:plus" width={16} /> เพิ่มวัตถุดิบ
             </button>
           </div>
-          {ingredients.map((_, index) => (
+          {ingredients.map((ingredient, index) => (
             <div key={index} className="flex items-center gap-2 mt-2">
               <span className="text-gray-700 w-6">{index + 1}.</span>
               <TextField
                 label="ชื่อวัตถุดิบ"
-                value={ingredients[index].name}
+                value={ingredient.name}
                 onChange={(e) => {
                   const newIngredients = [...ingredients];
                   newIngredients[index].name = e.target.value;
@@ -292,7 +279,7 @@ export default function AddFoodMenu() {
               />
               <TextField
                 label="จำนวน"
-                value={ingredients[index].amount}
+                value={ingredient.amount}
                 onChange={(e) => {
                   const newIngredients = [...ingredients];
                   newIngredients[index].amount = e.target.value;
@@ -303,7 +290,7 @@ export default function AddFoodMenu() {
               />
               <TextField
                 label="หน่วย"
-                value={ingredients[index].unit}
+                value={ingredient.unit}
                 onChange={(e) => {
                   const newIngredients = [...ingredients];
                   newIngredients[index].unit = e.target.value;
@@ -347,14 +334,10 @@ export default function AddFoodMenu() {
           >
             บันทึก
           </button>
-          {/* <button
-            onClick={previewFormData}
-            className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md"
-          >
-            Preview FormData
-          </button> */}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default EditMenuPage;

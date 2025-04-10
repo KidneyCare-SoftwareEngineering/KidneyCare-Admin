@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 
 interface FoodCardProps {
   item: {
@@ -9,24 +10,30 @@ interface FoodCardProps {
     name: string;
     image: string;
   };
-  onDelete: () => void;
+  onDelete: (id: number) => void;
   onUpdate: () => void;
 }
 
 const FoodCard: React.FC<FoodCardProps> = ({ item, onDelete, onUpdate }) => {
   const [showConfirm, setShowConfirm] = useState(false);
+  const router = useRouter();
 
   const handleDelete = () => {
     setShowConfirm(true);
   };
 
   const confirmDelete = () => {
-    onDelete();
+    onDelete(item.id);
     setShowConfirm(false);
+
   };
 
   const cancelDelete = () => {
     setShowConfirm(false);
+  };
+
+  const handleUpdate = () => {
+    router.push(`/Menu/EditMenu/${item.id}`);
   };
 
   return (
@@ -40,10 +47,10 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, onDelete, onUpdate }) => {
         <h3 className="text-lg font-semibold truncate">{item.name}</h3>
         <div className="flex justify-between gap-x-5 mt-3 px-3">
           <button
-            onClick={onUpdate}
+            onClick={handleUpdate}
             className="flex items-center justify-center gap-1 px-4 py-2 border border-orange-500 text-orange-500 rounded-md shadow-sm hover:bg-orange-500 hover:text-white transition w-full max-w-[calc(50%-10px)]"
           >
-            <Icon icon="tabler:pencil" width="16" /> แก้ไข
+            แก้ไข
           </button>
           <button
             onClick={handleDelete}

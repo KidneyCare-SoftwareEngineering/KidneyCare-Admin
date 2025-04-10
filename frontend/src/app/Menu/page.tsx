@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../../../Components/Sidebar";
 import Header from "../../../Components/Header";
 import FoodCard from "../../../Components/FoodCard";
+import Swal from "sweetalert2";
 
 interface MenuItem {
   id: number;
@@ -10,32 +11,36 @@ interface MenuItem {
   image: string;
 }
 
+interface Recipe {
+  recipe_id: number;
+  recipe_name: string;
+  recipe_img_link: string[];
+}
+
 const Menu: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]); // สำหรับเก็บข้อมูลที่กรองแล้ว
+  const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [sortBy, setSortBy] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 20;
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
-    fetch("https://backend-billowing-waterfall-4640.fly.dev/get_recipes")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
+    // Fetching the recipes from the API
+    console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/get_recipes`)
+      .then((response) => response.json())
       .then((data) => {
-        const formattedData = data.recipes.map(
-          (recipe: any, index: number) => ({
-            id: index + 1,
-            name: recipe.recipe_name,
-            image: recipe.recipe_img_link[0],
-          })
-        );
+        console.log("Fetched data:", data);
+        const formattedData = data.recipes.map((recipe: Recipe) => ({
+          id: recipe.recipe_id,
+          name: recipe.recipe_name,
+          image: recipe.recipe_img_link[0],
+        }));
+        console.log("Formatted data:", formattedData);
         setMenuItems(formattedData);
-        setFilteredItems(formattedData); // ตั้งค่าข้อมูลที่กรองแล้ว
+        setFilteredItems(formattedData);
       })
       .catch((error) => {
         console.error("Error fetching menu items:", error);
@@ -52,35 +57,41 @@ const Menu: React.FC = () => {
       item.name.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredItems(filtered);
-    setCurrentPage(1); // รีเซ็ตหน้าเมื่อค้นหา
+    setCurrentPage(1);
     scrollToTop();
   };
 
   const handleDelete = (id: number) => {
-    fetch(
-      `https://backend-billowing-waterfall-4640.fly.dev/delete_recipe/${id}`,
-      { method: "DELETE" }
-    )
+    fetch(`${process.env.NEXT_PUBLIC_API_DIESEL}/delete_recipe/${id}`, { method: "DELETE" })
       .then(() => {
         setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
         setFilteredItems((prevItems) =>
           prevItems.filter((item) => item.id !== id)
         );
+        Swal.fire({
+          icon: "success",
+          title: "ลบสำเร็จ",
+          text: "เมนูอาหารถูกลบเรียบร้อยแล้ว!",
+          confirmButtonText: "ตกลง",
+        });
       })
       .catch((error) => {
         console.error("Error deleting menu item:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถลบเมนูอาหารได้ กรุณาลองใหม่อีกครั้ง!",
+          confirmButtonText: "ตกลง",
+        });
       });
   };
 
   const handleUpdate = (id: number, updatedData: Partial<MenuItem>) => {
-    fetch(
-      `https://backend-billowing-waterfall-4640.fly.dev/update_recipe/${id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      }
-    )
+    fetch(`${process.env.NEXT_PUBLIC_API_DIESEL}update_recipe/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
+    })
       .then((response) => response.json())
       .then((updatedItem) => {
         setMenuItems((prevItems) =>
@@ -139,19 +150,13 @@ const Menu: React.FC = () => {
   const getPaginationButtons = () => {
     const buttons = [];
     if (totalPages <= 5) {
-      // Show all pages if total pages are 5 or less
       for (let i = 1; i <= totalPages; i++) {
         buttons.push(i);
       }
     } else {
-      // Show first, last, current, and neighbors with ellipsis
       if (currentPage > 2) buttons.push(1);
       if (currentPage > 3) buttons.push("...");
-      for (
-        let i = Math.max(1, currentPage - 1);
-        i <= Math.min(totalPages, currentPage + 1);
-        i++
-      ) {
+      for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages, currentPage + 1); i++) {
         buttons.push(i);
       }
       if (currentPage < totalPages - 2) buttons.push("...");
@@ -172,22 +177,16 @@ const Menu: React.FC = () => {
             handleSort(selectedOption);
           }}
           addPath="/Menu/AddMenu"
-          onSearch={handleSearch} // เพิ่มฟังก์ชัน onSearch
+          onSearch={handleSearch}
         />
 
         <div className="grid grid-cols-4 gap-4">
           {paginatedItems.map((item) => (
             <FoodCard
               key={item.id}
-              item={{
-                id: item.id,
-                name: item.name,
-                image: item.image,
-              }}
-              onDelete={() => handleDelete(item.id)} // ใช้ handleDelete
-              onUpdate={() =>
-                handleUpdate(item.id, { name: item.name, image: item.image })
-              } // ใช้ handleUpdate
+              item={item}
+              onDelete={() => handleDelete(item.id)}
+              onUpdate={() => handleUpdate(item.id, { name: item.name, image: item.image })}
             />
           ))}
         </div>
@@ -196,11 +195,8 @@ const Menu: React.FC = () => {
         <div className="flex justify-center items-center mt-6 space-x-2">
           <button
             onClick={() => {
-              setCurrentPage((prev) => {
-                const newPage = Math.max(prev - 1, 1);
-                scrollToTop();
-                return newPage;
-              });
+              setCurrentPage((prev) => Math.max(prev - 1, 1));
+              scrollToTop();
             }}
             disabled={currentPage === 1}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
@@ -215,11 +211,10 @@ const Menu: React.FC = () => {
                   setCurrentPage(button);
                   scrollToTop();
                 }}
-                className={`px-3 py-1 rounded ${
-                  currentPage === button
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-200 hover:bg-gray-300"
-                }`}
+                className={`px-3 py-1 rounded ${currentPage === button
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+                  }`}
               >
                 {button}
               </button>
@@ -231,11 +226,8 @@ const Menu: React.FC = () => {
           )}
           <button
             onClick={() => {
-              setCurrentPage((prev) => {
-                const newPage = Math.min(prev + 1, totalPages);
-                scrollToTop();
-                return newPage;
-              });
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+              scrollToTop();
             }}
             disabled={currentPage === totalPages}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
