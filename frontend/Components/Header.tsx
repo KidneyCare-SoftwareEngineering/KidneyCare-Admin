@@ -8,6 +8,7 @@ interface HeaderProps {
   sortOptions: string[];
   onSortChange: (option: string) => void;
   addPath: string;
+  onSearch: (searchTerm: string) => void; // ฟังก์ชันสำหรับการค้นหา
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -15,9 +16,16 @@ const Header: React.FC<HeaderProps> = ({
   sortOptions,
   onSortChange,
   addPath,
+  onSearch,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // สถานะสำหรับคำค้นหา
   const router = useRouter();
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    onSearch(e.target.value); // ส่งคำค้นหาไปที่ฟังก์ชัน onSearch
+  };
 
   return (
     <div className="flex justify-between items-center mb-4">
@@ -27,8 +35,14 @@ const Header: React.FC<HeaderProps> = ({
         <div className="relative">
           <input
             type="text"
+            value={searchTerm}
+            onChange={handleSearchChange} // ฟังก์ชันสำหรับการอัพเดตคำค้นหา
             className="border rounded p-2 pl-8 w-48"
-            placeholder={title === "Menu" ? "ค้นหา" : `ค้นหา${title.replace("จัดการ", "").trim()}...`}
+            placeholder={
+              title === "Menu"
+                ? "ค้นหา"
+                : `ค้นหา${title.replace("จัดการ", "").trim()}...`
+            }
           />
           <Icon
             icon="tabler:search"
