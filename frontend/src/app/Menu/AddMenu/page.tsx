@@ -50,31 +50,6 @@ export default function AddFoodMenu() {
     setImageFiles(imageFiles.filter((_, i) => i !== index));
   };
 
-  const previewFormData = () => {
-    const formData = new FormData();
-    formData.append("recipe_name", foodName);
-    formData.append(
-      "recipe_method",
-      JSON.stringify(steps.split("\n").filter((step) => step.trim() !== ""))
-    );
-    formData.append("calories", calories);
-    formData.append("calories_unit", "kcal");
-    formData.append("food_category", JSON.stringify(foodType));
-    formData.append("dish_type", "Stir-Fry");
-    formData.append("ingredients", JSON.stringify(ingredients));
-    formData.append("nutrients", JSON.stringify(nutrition));
-    imageFiles.forEach((file) => {
-      formData.append("image", file);
-    });
-
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-  };
-
-
-
-
 
 
   const handleSave = async () => {
@@ -347,12 +322,6 @@ export default function AddFoodMenu() {
           >
             บันทึก
           </button>
-          {/* <button
-            onClick={previewFormData}
-            className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md"
-          >
-            Preview FormData
-          </button> */}
         </div>
       </div>
     </div>
